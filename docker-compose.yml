@@ -23,34 +23,6 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # LocalStack for AWS Services Simulation
-  localstack:
-    image: localstack/localstack:3.0
-    container_name: people-org-localstack
-    environment:
-      - SERVICES=cognito-idp,s3,secretsmanager,iam
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-    ports:
-      - "4566:4566"
-    volumes:
-      - localstack_data:/tmp/localstack
-      - ./docker/localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - people-org-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
-
   # Redis for Caching
   redis:
     image: redis:7-alpine
@@ -84,16 +56,14 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_JPA_SHOW_SQL: true
 
-      # AWS LocalStack Configuration
-      AWS_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test  # pragma: allowlist secret
-      AWS_ENDPOINT_URL: http://localstack:4566
-
-      # OAuth2/Cognito Configuration (LocalStack)
-      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COGNITO_CLIENT_ID: test-client-id
-      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COGNITO_CLIENT_SECRET: test-client-secret  # pragma: allowlist secret
-      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COGNITO_ISSUER_URI: http://localstack:4566
+      # OAuth2 Configuration
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_CLIENT_ID: ${OAUTH2_CLIENT_ID:test-client-id}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_DEFAULT_CLIENT_SECRET: ${OAUTH2_CLIENT_SECRET:test-client-secret}  # pragma: allowlist secret
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEFAULT_ISSUER_URI: ${OAUTH2_ISSUER_URI:http://localhost:9000}
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEFAULT_AUTHORIZATION_URI: ${OAUTH2_AUTHORIZATION_URI:http://localhost:9000/oauth/authorize}
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEFAULT_TOKEN_URI: ${OAUTH2_TOKEN_URI:http://localhost:9000/oauth/token}
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEFAULT_USER_INFO_URI: ${OAUTH2_USERINFO_URI:http://localhost:9000/userinfo}
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_DEFAULT_JWK_SET_URI: ${OAUTH2_JWK_SET_URI:http://localhost:9000/.well-known/jwks.json}
 
       # Redis Configuration
       SPRING_DATA_REDIS_HOST: redis
@@ -121,8 +91,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      localstack:
-        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -142,9 +110,6 @@ volumes:
   postgres_data:
     driver: local
     name: people-org-postgres-data
-  localstack_data:
-    driver: local
-    name: people-org-localstack-data
   redis_data:
     driver: local
     name: people-org-redis-data

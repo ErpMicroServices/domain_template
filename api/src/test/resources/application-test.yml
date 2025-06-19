@@ -37,23 +37,23 @@ spring:
       enabled: false
     path: /graphql
 
-  # Disable security for tests
+  # OAuth2 security configuration for tests
   security:
     oauth2:
       client:
         registration:
-          cognito:
+          default:
             client-id: test-client-id
             client-secret: test-client-secret  # pragma: allowlist secret
             scope: openid,profile,email
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
-          cognito:
-            authorization-uri: https://test.auth.region.amazoncognito.com/oauth2/authorize
-            token-uri: https://test.auth.region.amazoncognito.com/oauth2/token
-            user-info-uri: https://test.auth.region.amazoncognito.com/oauth2/userInfo
-            jwk-set-uri: https://cognito-idp.region.amazonaws.com/test/.well-known/jwks.json
+          default:
+            authorization-uri: http://localhost:9000/oauth2/authorize
+            token-uri: http://localhost:9000/oauth2/token
+            user-info-uri: http://localhost:9000/oauth2/userInfo
+            jwk-set-uri: http://localhost:9000/.well-known/jwks.json
 
 # Test profile specific configuration
 logging:
