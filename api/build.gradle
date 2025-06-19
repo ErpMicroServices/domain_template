@@ -1,0 +1,101 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'org.erp_microservices.peopleandorganizations'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2024.0.1")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-vault-config'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework.graphql:spring-graphql-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:vault'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+
+    // Cucumber BDD Testing Dependencies
+    testImplementation 'io.cucumber:cucumber-java:7.18.1'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.18.1'
+    testImplementation 'io.cucumber:cucumber-spring:7.18.1'
+    testImplementation 'org.junit.platform:junit-platform-suite-api:1.10.0'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+// integrationTest task is configured in the root build.gradle
+
+// BDD Test task using Cucumber
+task bddTest(type: Test) {
+    description = 'Runs BDD tests using Cucumber.'
+    group = 'verification'
+
+    useJUnitPlatform {
+        includeTags 'bdd'
+    }
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    shouldRunAfter test, integrationTest
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+
+    systemProperty 'cucumber.junit-platform.naming-strategy', 'long'
+    systemProperty 'cucumber.plugin', 'pretty,html:build/reports/cucumber,json:build/reports/cucumber/cucumber.json'
+}
