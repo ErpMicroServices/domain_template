@@ -76,8 +76,8 @@ This template provides:
 ## Important Notes
 
 - This template uses standalone OAuth2 implementation without AWS services
-- All AWS references (Amplify, Cognito, etc.) have been removed
 - GraphQL API is designed to work with standard OAuth2 providers
+- Configure your preferred OAuth2 provider using the environment variables in .env.example
 
 ## Getting Started with This Template
 
