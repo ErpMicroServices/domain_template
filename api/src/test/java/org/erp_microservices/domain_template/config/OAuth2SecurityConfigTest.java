@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,6 +18,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OAuth2 Security Configuration Tests")
+@TestPropertySource(properties = {
+    "spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8080",
+    "spring.main.lazy-initialization=true"
+})
 class OAuth2SecurityConfigTest {
 
     private OAuth2SecurityConfig securityConfig;
