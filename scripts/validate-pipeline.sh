@@ -42,6 +42,7 @@ run_validation "OAuth2 Security Config Test" "test -f api/src/test/java/org/erp_
 run_validation "Token Validation Service Test" "test -f api/src/test/java/org/erp_microservices/domain_template/security/OAuth2TokenValidationServiceTest.java"
 run_validation "GraphQL Security Context Test" "test -f api/src/test/java/org/erp_microservices/domain_template/graphql/GraphQLSecurityContextTest.java"
 run_validation "Cucumber Test Runner" "test -f api/src/test/java/org/erp_microservices/domain_template/CucumberTestRunner.java"
+run_validation "BDD Tag in Feature File" "grep -q '@bdd' api/src/test/resources/features/oauth2-security.feature"
 
 # Check Docker configuration
 echo ""
@@ -56,6 +57,13 @@ echo "4. Checking Application Configuration..."
 run_validation "Application YAML" "test -f api/src/main/resources/application.yml"
 run_validation "OAuth2 config in YAML" "grep -q 'oauth2' api/src/main/resources/application.yml"
 run_validation "Test Application YAML" "test -f api/src/test/resources/application-test.yml"
+run_validation "Main Application Class" "test -f api/src/main/java/org/erp_microservices/domain_template/DomainTemplateApplication.java"
+
+# Check code compilation readiness
+echo ""
+echo "5. Checking Code Quality..."
+run_validation "No missing imports in main" "! grep -r 'import.*\\*;' api/src/main/java --include='*.java' || echo 'No wildcard imports'"
+run_validation "No missing imports in tests" "! grep -r 'import.*\\*;' api/src/test/java --include='*.java' || echo 'No wildcard imports'"
 
 # Display validation summary
 echo ""

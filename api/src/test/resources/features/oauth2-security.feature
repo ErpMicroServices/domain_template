@@ -1,3 +1,4 @@
+@bdd
 Feature: OAuth2 Security for GraphQL API
   As a system administrator
   I want the GraphQL API to be protected by OAuth2
