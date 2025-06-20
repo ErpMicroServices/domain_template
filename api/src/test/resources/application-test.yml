@@ -37,23 +37,13 @@ spring:
       enabled: false
     path: /graphql
 
-  # OAuth2 security configuration for tests
+  # OAuth2 resource server configuration for tests
   security:
     oauth2:
-      client:
-        registration:
-          default:
-            client-id: test-client-id
-            client-secret: test-client-secret  # pragma: allowlist secret
-            scope: openid,profile,email
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-        provider:
-          default:
-            authorization-uri: http://localhost:9000/oauth2/authorize
-            token-uri: http://localhost:9000/oauth2/token
-            user-info-uri: http://localhost:9000/oauth2/userInfo
-            jwk-set-uri: http://localhost:9000/.well-known/jwks.json
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080
+          jwk-set-uri: http://localhost:8080/oauth2/jwks
 
 # Test profile specific configuration
 logging:

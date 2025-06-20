@@ -1,6 +1,9 @@
 -- PostgreSQL Initialization Script for People and Organizations Domain
 -- This script sets up the database with proper extensions, schemas, and initial configuration
 
+-- Create Keycloak database
+CREATE DATABASE keycloak;
+
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
