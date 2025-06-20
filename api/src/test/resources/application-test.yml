@@ -1,6 +1,9 @@
 spring:
   application:
     name: people-and-organizations-api-test
+    
+  main:
+    lazy-initialization: true  # Speed up test startup
 
   # Disable Spring Cloud Config for tests
   cloud:
@@ -49,4 +52,5 @@ spring:
 logging:
   level:
     org.springframework: INFO
+    org.springframework.security: DEBUG  # Debug security for tests
     org.hibernate: INFO
