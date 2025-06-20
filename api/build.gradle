@@ -69,10 +69,11 @@ dependencyManagement {
 
 test {
     useJUnitPlatform {
-        excludeTags 'integration'
+        excludeTags 'integration', 'bdd'
     }
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
 }
 

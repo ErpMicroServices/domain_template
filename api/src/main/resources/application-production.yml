@@ -1,0 +1,27 @@
+# Production Profile Configuration
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Never auto-update schema in production
+    show-sql: false       # Don't show SQL in production logs
+    
+  graphql:
+    graphiql:
+      enabled: false      # Disable GraphiQL UI in production
+
+# Production logging configuration
+logging:
+  level:
+    root: WARN
+    org.erp_microservices: INFO
+    org.springframework.security: WARN
+    
+# Production-specific settings
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics  # Only expose essential endpoints
+  endpoint:
+    health:
+      show-details: when-authorized   # Only show details to authorized users
