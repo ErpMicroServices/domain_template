@@ -15,12 +15,11 @@ COPY ui-components/package.json ./ui-components/
 # Make gradlew executable
 RUN chmod +x ./gradlew
 
+# Copy all source code
+COPY . .
+
 # Download dependencies
 RUN ./gradlew dependencies --no-daemon
-
-# Copy source code
-COPY api/src ./api/src
-COPY database/src ./database/src
 
 # Build the application
 RUN ./gradlew :api:bootJar -x test --no-daemon
