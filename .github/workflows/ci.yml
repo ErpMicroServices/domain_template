@@ -32,6 +32,14 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      
+      oauth2:
+        image: ghcr.io/navikt/mock-oauth2-server:2.1.10
+        env:
+          SERVER_PORT: 8080
+          LOG_LEVEL: INFO
+        ports:
+          - 8080:8080
 
     steps:
       - name: Checkout code
@@ -51,10 +59,24 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
 
+      - name: Wait for OAuth2 server
+        run: |
+          echo "Waiting for OAuth2 server to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/default/.well-known/openid-configuration > /dev/null 2>&1; then
+              echo "OAuth2 server is ready!"
+              break
+            fi
+            echo "Waiting for OAuth2 server... ($i/30)"
+            sleep 2
+          done
+
       - name: Run unit tests
         run: ./gradlew test -x integrationTest --no-daemon
         env:
           SPRING_PROFILES_ACTIVE: test
+          OAUTH2_ISSUER_URI: http://localhost:8080/default
+          OAUTH2_JWK_SET_URI: http://localhost:8080/default/jwks
 
       - name: Run integration tests
         run: ./gradlew integrationTest --no-daemon
@@ -63,10 +85,18 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
           SPRING_DATASOURCE_USERNAME: test
           SPRING_DATASOURCE_PASSWORD: test  # pragma: allowlist secret
+          OAUTH2_ISSUER_URI: http://localhost:8080/default
+          OAUTH2_JWK_SET_URI: http://localhost:8080/default/jwks
 
       - name: Generate test report
         run: ./gradlew jacocoTestReport --no-daemon
         if: always()
+
+      - name: Show service logs on failure
+        if: failure()
+        run: |
+          echo "=== OAuth2 Server Logs ==="
+          docker logs $(docker ps -q --filter "ancestor=ghcr.io/navikt/mock-oauth2-server:2.1.10") || echo "No OAuth2 container found"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -282,14 +312,14 @@ jobs:
           file: ./Dockerfile
           push: false
           load: true
-          tags: people-organizations-api:test
+          tags: domain-template:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Run Trivy container scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'people-organizations-api:test'
+          image-ref: 'domain-template:test'
           format: 'sarif'
           output: 'trivy-container-results.sarif'
 

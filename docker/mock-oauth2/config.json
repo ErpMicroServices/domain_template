@@ -1,0 +1,28 @@
+{
+  "interactiveLogin": false,
+  "httpServer": {
+    "type": "NettyWrapper"
+  },
+  "tokenCallbacks": [
+    {
+      "issuerId": "default",
+      "tokenExpiry": 3600,
+      "requestMappings": [
+        {
+          "requestParam": "scope",
+          "match": "*",
+          "claims": {
+            "sub": "test-user",
+            "aud": ["domain-template-api"],
+            "scope": "read write",
+            "iss": "http://localhost:8080/default",
+            "exp": 3600,
+            "iat": 0,
+            "email": "test@example.com",
+            "name": "Test User"
+          }
+        }
+      ]
+    }
+  ]
+}

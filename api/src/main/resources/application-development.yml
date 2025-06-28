@@ -1,0 +1,27 @@
+# Development Profile Configuration (for dev servers, not local)
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update    # Allow schema updates in dev
+    show-sql: false       # Don't flood logs with SQL
+    
+  graphql:
+    graphiql:
+      enabled: true       # Enable GraphiQL for development testing
+
+# Development logging configuration
+logging:
+  level:
+    org.erp_microservices: INFO
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+    
+# Development-specific settings
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,configprops
+  endpoint:
+    health:
+      show-details: always

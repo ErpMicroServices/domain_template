@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: domain-template-api
+  
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080}
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://localhost:8080/oauth2/jwks}
+
+  graphql:
+    graphiql:
+      enabled: true
+    path: /graphql
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/domain_template}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+server:
+  port: ${SERVER_PORT:8090}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.security: ${LOG_LEVEL_SECURITY:INFO}
+    org.springframework.security.oauth2: ${LOG_LEVEL_OAUTH2:INFO}
