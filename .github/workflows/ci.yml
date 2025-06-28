@@ -312,14 +312,14 @@ jobs:
           file: ./Dockerfile
           push: false
           load: true
-          tags: people-organizations-api:test
+          tags: domain-template:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Run Trivy container scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'people-organizations-api:test'
+          image-ref: 'domain-template:test'
           format: 'sarif'
           output: 'trivy-container-results.sarif'
 
