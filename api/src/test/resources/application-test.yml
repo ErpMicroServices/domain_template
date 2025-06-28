@@ -41,12 +41,10 @@ spring:
     path: /graphql
 
   # OAuth2 resource server configuration for tests
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080
-          jwk-set-uri: http://localhost:8080/oauth2/jwks
+  # Disabled for tests to avoid external dependencies
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
 # Test profile specific configuration
 logging:
