@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -162,9 +164,8 @@ public class OAuth2SecuritySteps {
     public void iCheckTheOAuth2ServerHealthEndpoint() {
         // This checks the OAuth2 server directly, not through the API
         headers = new HttpHeaders();
-        // The OAuth2 server URL would come from configuration
-        // For now, assuming it's on localhost:8080
-        response = restTemplate.getForEntity("http://localhost:8080/health", String.class);
+        // Mock OAuth2 server health endpoint
+        response = restTemplate.getForEntity("http://localhost:8180/default/.well-known/openid-configuration", String.class);
     }
 
     @Then("the OAuth2 server should respond with a healthy status")
@@ -175,7 +176,7 @@ public class OAuth2SecuritySteps {
     @And("the OAuth2 discovery endpoint should be accessible")
     public void theOAuth2DiscoveryEndpointShouldBeAccessible() {
         ResponseEntity<String> discoveryResponse = restTemplate.getForEntity(
-            "http://localhost:8080/.well-known/openid-configuration", 
+            "http://localhost:8180/default/.well-known/openid-configuration", 
             String.class
         );
         assertThat(discoveryResponse.getStatusCode().is2xxSuccessful()).isTrue();
@@ -217,8 +218,26 @@ public class OAuth2SecuritySteps {
     }
 
     private String obtainValidAccessToken() {
-        // TODO: Implement actual OAuth2 token acquisition
-        // This will interact with the OAuth2 server to get a valid token
-        return "valid-token-placeholder";
+        // Get token from mock OAuth2 server
+        String tokenUrl = "http://localhost:8180/default/token";
+        
+        HttpHeaders tokenHeaders = new HttpHeaders();
+        tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        
+        String body = "grant_type=client_credentials&client_id=test-client&client_secret=test-secret&scope=read write";
+        
+        HttpEntity<String> tokenRequest = new HttpEntity<>(body, tokenHeaders);
+        ResponseEntity<Map> tokenResponse = restTemplate.exchange(
+            tokenUrl, 
+            HttpMethod.POST, 
+            tokenRequest, 
+            Map.class
+        );
+        
+        if (tokenResponse.getStatusCode().is2xxSuccessful() && tokenResponse.getBody() != null) {
+            return (String) tokenResponse.getBody().get("access_token");
+        }
+        
+        throw new RuntimeException("Failed to obtain access token from mock OAuth2 server");
     }
 }
