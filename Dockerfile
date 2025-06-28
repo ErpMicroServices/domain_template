@@ -2,19 +2,28 @@
 FROM gradle:8.11.1-jdk21-alpine AS build
 WORKDIR /app
 
-# Copy Gradle files
-COPY build.gradle settings.gradle gradle.properties ./
+# Copy Gradle wrapper and configuration files
+COPY gradlew* ./
 COPY gradle ./gradle
+COPY build.gradle settings.gradle gradle.properties ./
+
+# Copy module build files
 COPY api/build.gradle ./api/
+COPY database/build.gradle ./database/
+COPY ui-components/package.json ./ui-components/
+
+# Make gradlew executable
+RUN chmod +x ./gradlew
 
 # Download dependencies
-RUN gradle dependencies --no-daemon
+RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
 COPY api/src ./api/src
+COPY database/src ./database/src
 
 # Build the application
-RUN gradle :api:build -x test --no-daemon
+RUN ./gradlew :api:bootJar -x test --no-daemon
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine
